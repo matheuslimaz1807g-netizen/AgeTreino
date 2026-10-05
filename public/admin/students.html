@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alunos — Painel Action Fitness</title>
+  <meta name="description" content="Gestão de alunos do Action Fitness Studio.">
+  <link rel="stylesheet" href="/css/main.css">
+  <style>
+    /* ── Partner & Plan Badges ── */
+    .badge--wellhub   { background: #e0f7fa; color: #00838f; }
+    .badge--totalpass { background: #fce4ec; color: #c2185b; }
+    .badge--classpass { background: #ede7f6; color: #6a1b9a; }
+    .badge--particular{ background: #f3e5f5; color: #7b1fa2; }
+    .badge--plan      { background: #fff3e0; color: #e65100; }
+    .badge--inactive  { background: #eceff1; color: #546e7a; }
+
+    /* ── Schedule Tag Chips ── */
+    .schedule-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .schedule-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px;
+      font-size: .75rem; font-weight: 600;
+      background: #f0fdf4; color: #15803d;
+      border: 1px solid #bbf7d0;
+      border-radius: 100px;
+    }
+
+    /* ── Day checkbox grid ── */
+    .day-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .day-slot-row {
+      display: flex; flex-direction: column; gap: 6px;
+      background: #f8fafc; border: 1px solid #e2e8f0;
+      border-radius: 8px; padding: 12px;
+    }
+    .day-slot-row label { font-size: .8125rem; font-weight: 600; color: #374151; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .day-slot-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--color-accent); }
+    .day-slot-row select {
+      font-size: .8125rem; padding: 6px 8px;
+      border: 1px solid #d1d5db; border-radius: 6px;
+      background: #fff; color: #374151;
+      display: none;
+    }
+    .day-slot-row.selected select { display: block; }
+    .day-slot-row.selected { border-color: var(--color-accent); background: #f0fdf4; }
+
+    /* ── Modal wider ── */
+    @media (min-width: 640px) {
+      .modal--lg { max-width: 640px; }
+    }
+
+    /* ── Table action col ── */
+    .table .col-actions { width: 120px; text-align: right; }
+
+    /* ── Search bar ── */
+    .search-bar {
+      display: flex; align-items: center; gap: 10px;
+      flex-wrap: wrap;
+    }
+    .search-bar .form-control { max-width: 280px; }
+  </style>
+</head>
+
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <a href="/admin/" class="sidebar__logo">
+        <img src="/images/logo.jfif" alt="Action Fitness" />
+      </a>
+      <nav class="sidebar__nav">
+        <a href="/admin/" class="sidebar__nav-item">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"></path>
+          </svg>
+          Dashboard
+        </a>
+        <a href="/admin/appointments.html" class="sidebar__nav-item">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+          Agendamentos
+        </a>
+        <a href="/admin/schedules.html" class="sidebar__nav-item">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          Grade de Horários
+        </a>
+        <a href="/admin/students.html" class="sidebar__nav-item active">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M17 20h5v-2a4 4 0 00-4-4h-1M9 20H4v-2a4 4 0 014-4h1m4-4a4 4 0 100-8 4 4 0 000 8z"></path>
+          </svg>
+          Alunos
+        </a>
+      </nav>
+      <div class="sidebar__footer">
+        <button id="admin-logout-btn" class="btn btn--outline btn--sm btn--full">Sair</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <div class="admin-page">
+        <div class="page__header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
+          <div>
+            <h1>Alunos</h1>
+            <p>Cadastre e gerencie os alunos da academia.</p>
+          </div>
+          <button id="btn-new-student" class="btn btn--accent" type="button">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            Novo Aluno
+          </button>
+        </div>
+
+        <!-- Filter bar -->
+        <div class="search-bar mb-4">
+          <input id="search-input" class="form-control" type="search" placeholder="Buscar por nome…">
+          <select id="filter-active" class="form-control" style="width:auto;">
+            <option value="">Todos</option>
+            <option value="true" selected>Ativos</option>
+            <option value="false">Inativos</option>
+          </select>
+        </div>
+
+        <!-- Table -->
+        <div class="card">
+          <div class="table-wrap">
+            <table class="table" id="students-table">
+              <thead>
+                <tr>
+                  <th>Aluno</th>
+                  <th>Contato</th>
+                  <th>Parceiro</th>
+                  <th>Plano</th>
+                  <th>Horários Fixos</th>
+                  <th class="col-actions">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="students-tbody">
+                <tr>
+                  <td colspan="6">
+                    <div class="loading-overlay"><div class="spinner spinner--lg"></div></div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Mobile Bottom Nav -->
+  <nav class="mobile-bottom-nav">
+    <a href="/admin/" class="mobile-bottom-nav__item">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"></path>
+      </svg>
+      Dashboard
+    </a>
+    <a href="/admin/appointments.html" class="mobile-bottom-nav__item">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+      </svg>
+      Agendamentos
+    </a>
+    <a href="/admin/schedules.html" class="mobile-bottom-nav__item">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      Grade
+    </a>
+    <a href="/admin/students.html" class="mobile-bottom-nav__item active">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M17 20h5v-2a4 4 0 00-4-4h-1M9 20H4v-2a4 4 0 014-4h1m4-4a4 4 0 100-8 4 4 0 000 8z"></path>
+      </svg>
+      Alunos
+    </a>
+  </nav>
+
+  <!-- ── New / Edit Student Modal ── -->
+  <div id="student-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal modal--lg">
+      <div class="modal__header">
+        <h2 id="modal-title" style="font-size:1rem;">Novo Aluno</h2>
+        <button id="modal-close" class="btn btn--ghost btn--sm" type="button" aria-label="Fechar">✕</button>
+      </div>
+      <div class="modal__body">
+        <form id="student-form" class="form-stack" novalidate>
+          <input type="hidden" id="student-id">
+
+          <!-- Basic info -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="form-group" style="grid-column:1/-1;">
+              <label class="form-label form-label--required" for="s-name">Nome Completo</label>
+              <input id="s-name" class="form-control" type="text" placeholder="Nome do aluno" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="s-phone">Contato (WhatsApp)</label>
+              <input id="s-phone" class="form-control" type="tel" placeholder="(00) 00000-0000">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="s-doc">CPF / Documento</label>
+              <input id="s-doc" class="form-control" type="text" placeholder="000.000.000-00">
+            </div>
+            <div class="form-group">
+              <label class="form-label form-label--required" for="s-partner">Origem / Parceiro</label>
+              <select id="s-partner" class="form-control" required>
+                <option value="">Selecione…</option>
+                <option value="wellhub">Wellhub (Gympass)</option>
+                <option value="totalpass">TotalPass</option>
+                <option value="classpass">ClassPass</option>
+                <option value="particular">Particular</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label form-label--required" for="s-plan">Tipo de Plano</label>
+              <select id="s-plan" class="form-control" required>
+                <option value="">Selecione…</option>
+                <option value="twice_a_week">2× por semana</option>
+                <option value="three_times_a_week">3× por semana</option>
+                <option value="monthly_free">Mensal livre</option>
+              </select>
+            </div>
+          </div>
+
+          <hr style="border:none;border-top:1px solid #e2e8f0;">
+
+          <!-- Fixed schedules -->
+          <div>
+            <label class="form-label" style="margin-bottom:4px;">Horários Fixos</label>
+            <p class="text-muted" style="font-size:.8125rem;margin-bottom:10px;">
+              Selecione os dias e os horários da grade. O sistema irá reservar as vagas automaticamente.
+            </p>
+            <div id="day-grid" class="day-grid">
+              <!-- Populated by JS after fetching slots -->
+              <div class="loading-overlay" style="padding:20px;"><div class="spinner"></div></div>
+            </div>
+            <div id="schedule-conflicts" class="alert alert--warning hidden" style="margin-top:10px;"></div>
+          </div>
+
+          <div id="student-form-error" class="alert alert--danger hidden"></div>
+        </form>
+      </div>
+      <div class="modal__footer">
+        <button id="btn-toggle-active" class="btn btn--outline btn--sm" type="button" style="margin-right:auto;">
+          Desativar Aluno
+        </button>
+        <button id="modal-cancel-btn" class="btn btn--outline" type="button">Cancelar</button>
+        <button id="modal-save-btn" class="btn btn--accent" type="button">Salvar Aluno</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/admin/students.js"></script>
+</body>
+
+</html>

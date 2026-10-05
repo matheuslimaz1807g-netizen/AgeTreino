@@ -1,0 +1,23 @@
+# Dependências
+node_modules/
+dist/
+
+# Ambiente
+.env
+.env.local
+.env.production
+
+# Logs
+*.log
+logs/
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Prisma
+prisma/migrations/*.sql.bak

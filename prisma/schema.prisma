@@ -1,0 +1,140 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  admin
+  pt
+}
+
+enum PartnerType {
+  wellhub
+  totalpass
+  classpass
+  particular
+}
+
+enum PlanType {
+  twice_a_week
+  three_times_a_week
+  monthly_free
+}
+
+enum AppointmentStatus {
+  pending
+  confirmed
+  cancelled
+}
+
+enum CancelledBy {
+  admin
+  student
+}
+
+model Usuario {
+  id        String   @id @default(uuid())
+  name      String   @db.VarChar(100)
+  email     String   @unique @db.VarChar(150)
+  password  String   @db.VarChar(255)
+  role      Role     @default(admin)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  agendamentos  Agendamento[]
+  notificacoes  Notificacao[]
+
+  @@map("usuarios")
+}
+
+model Aluno {
+  id           String      @id @default(uuid())
+  name         String      @db.VarChar(100)
+  phone        String?     @db.VarChar(20)
+  documentId   String?     @map("document_id") @db.VarChar(50)
+  partnerType  PartnerType @map("partner_type")
+  planType     PlanType    @map("plan_type")
+  active       Boolean     @default(true)
+  createdAt    DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime    @updatedAt @map("updated_at") @db.Timestamptz
+
+  horariosFixos HorarioFixo[]
+  agendamentos  Agendamento[]
+
+  @@map("alunos")
+}
+
+model HorarioFixo {
+  id        String   @id @default(uuid())
+  studentId String   @map("student_id")
+  dayOfWeek Int      @map("day_of_week") // 0=Sun, 1=Mon, ..., 6=Sat
+  startTime String   @map("start_time") @db.VarChar(5) // HH:MM
+  endTime   String   @map("end_time") @db.VarChar(5)   // HH:MM
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  aluno Aluno @relation(fields: [studentId], references: [id])
+
+  @@unique([studentId, dayOfWeek, startTime])
+  @@map("horarios_fixos")
+}
+
+model HorarioGrade {
+  id          String   @id @default(uuid())
+  dayOfWeek   Int      @map("day_of_week") // 0=Sun, 1=Mon, ..., 6=Sat
+  startTime   String   @map("start_time") @db.VarChar(5) // HH:MM
+  endTime     String   @map("end_time") @db.VarChar(5)   // HH:MM
+  capacity    Int
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  agendamentos Agendamento[]
+
+  @@unique([dayOfWeek, startTime])
+  @@map("horarios_grade")
+}
+
+model Agendamento {
+  id           String            @id @default(uuid())
+  userId       String?           @map("user_id")   // null if automated
+  studentId    String?           @map("student_id") // null if manual visitor
+  guestName    String?           @map("guest_name") @db.VarChar(100) // set when studentId is null
+  slotId       String            @map("slot_id")
+  date         DateTime          @db.Date // Specific date of the appointment
+  status       AppointmentStatus @default(pending)
+  cancelledBy  CancelledBy?      @map("cancelled_by")
+  cancelReason String?           @map("cancel_reason") @db.Text
+  createdAt    DateTime          @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime          @updatedAt @map("updated_at") @db.Timestamptz
+
+  usuario Usuario?      @relation(fields: [userId], references: [id])
+  aluno   Aluno?        @relation(fields: [studentId], references: [id])
+  slot    HorarioGrade  @relation(fields: [slotId], references: [id])
+
+  @@unique([studentId, slotId, date])
+  @@index([date])
+  @@index([slotId])
+  @@index([studentId])
+  @@index([status])
+  @@map("agendamentos")
+}
+
+model Notificacao {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id") // recipient (admin)
+  type      String   @db.VarChar(50)
+  payload   Json     @default("{}")
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  usuario Usuario @relation(fields: [userId], references: [id])
+
+  @@index([userId, read])
+  @@map("notificacoes")
+}

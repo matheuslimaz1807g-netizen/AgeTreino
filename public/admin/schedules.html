@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grade de Horários — Age Treino Studio Personal</title>
+  <meta name="description" content="Gerenciamento da grade de horários da Age Treino Studio Personal.">
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <a href="/admin/" class="sidebar__logo">
+        <img src="/images/logo.jfif" alt="Age Treino" />
+      </a>
+      <nav class="sidebar__nav">
+        <a href="/admin/" class="sidebar__nav-item">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"></path></svg>
+          Dashboard
+        </a>
+        <a href="/admin/appointments.html" class="sidebar__nav-item">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+          Agendamentos
+        </a>
+        <a href="/admin/schedules.html" class="sidebar__nav-item active">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          Grade de Horários
+        </a>
+        <a href="/admin/students.html" class="sidebar__nav-item">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 20h5v-2a4 4 0 00-4-4h-1M9 20H4v-2a4 4 0 014-4h1m4-4a4 4 0 100-8 4 4 0 000 8z"></path></svg>
+          Alunos
+        </a>
+      </nav>
+      <div class="sidebar__footer">
+        <button id="admin-logout-btn" class="btn btn--outline btn--sm btn--full">Sair</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <div class="admin-page">
+        <div class="page__header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+          <div>
+            <h1>Grade de Horários</h1>
+            <p>Cadastre novos horários recorrentes ou altere a capacidade.</p>
+          </div>
+          <button id="add-slot-btn" class="btn btn--primary">Adicionar Horário</button>
+        </div>
+
+        <!-- Slots List by Day -->
+        <div id="slots-by-day-container">
+          <div class="loading-overlay"><div class="spinner spinner--lg"></div></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Mobile Bottom Nav -->
+  <nav class="mobile-bottom-nav">
+    <a href="/admin/" class="mobile-bottom-nav__item">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"></path></svg>
+      Dashboard
+    </a>
+    <a href="/admin/appointments.html" class="mobile-bottom-nav__item">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+      Agendamentos
+    </a>
+    <a href="/admin/schedules.html" class="mobile-bottom-nav__item active">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      Grade
+    </a>
+  </nav>
+
+  <!-- Add/Edit Modal -->
+  <div id="slot-modal" class="modal-backdrop hidden">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal__header">
+        <h2 id="modal-title">Adicionar Horário</h2>
+        <button id="modal-close" class="btn btn--ghost btn--sm">✕</button>
+      </div>
+      <form id="slot-form" class="form-stack">
+        <div class="modal__body">
+          <input type="hidden" id="slot-id">
+          <div class="form-group">
+            <label class="form-label form-label--required" for="slot-day">Dia da Semana</label>
+            <select id="slot-day" class="form-control" required>
+              <option value="1">Segunda-feira</option>
+              <option value="2">Terça-feira</option>
+              <option value="3">Quarta-feira</option>
+              <option value="4">Quinta-feira</option>
+              <option value="5">Sexta-feira</option>
+              <option value="6">Sábado</option>
+              <option value="0">Domingo</option>
+            </select>
+          </div>
+          <div style="display: flex; gap: 12px;">
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label form-label--required" for="slot-start">Início</label>
+              <input type="time" id="slot-start" class="form-control" required>
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label form-label--required" for="slot-end">Fim</label>
+              <input type="time" id="slot-end" class="form-control" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label form-label--required" for="slot-capacity">Capacidade (vagas)</label>
+            <input type="number" id="slot-capacity" class="form-control" min="1" max="100" value="6" required>
+          </div>
+          <div id="slot-error" class="alert alert--danger hidden" style="margin-top: 12px;"></div>
+        </div>
+        <div class="modal__footer">
+          <button type="button" id="modal-cancel-btn" class="btn btn--outline">Cancelar</button>
+          <button type="submit" id="modal-submit-btn" class="btn btn--primary">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/admin/schedules.js"></script>
+</body>
+</html>

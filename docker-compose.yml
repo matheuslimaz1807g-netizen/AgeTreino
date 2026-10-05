@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: action-fitness-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: action_fitness
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: action-fitness-app
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "postgresql://postgres:postgres@db:5432/action_fitness?schema=public"
+      JWT_SECRET: "dev-secret-troque-em-producao-minimo-32-caracteres-aqui"
+      JWT_REFRESH_SECRET: "dev-refresh-secret-troque-em-producao-minimo-32-chars"
+      PORT: 3000
+      NODE_ENV: development
+      ADMIN_NAME: "Administrador"
+      ADMIN_EMAIL: "admin@actionfitness.com.br"
+      ADMIN_PASSWORD: "Admin@2026!"
+    depends_on:
+      - db
+
+volumes:
+  pgdata:

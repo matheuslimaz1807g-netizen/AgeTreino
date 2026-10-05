@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meus Agendamentos — Age Treino Studio Personal</title>
+  <meta name="description" content="Visualize e gerencie seus agendamentos na Age Treino Studio Personal.">
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+
+<body>
+  <header class="header">
+    <div class="header__inner">
+      <a href="/schedule.html" class="header__logo">
+        <img src="/images/logo.jfif" alt="Age Treino" />
+      </a>
+      <nav class="header__nav">
+        <a href="/schedule.html" class="header__nav-link">Agendar</a>
+        <a href="/my-appointments.html" class="header__nav-link active">Meus Agendamentos</a>
+      </nav>
+      <div class="header__user">
+        <span class="header__user-name" id="user-name-display"></span>
+        <button id="logout-btn" class="btn btn--ghost btn--sm">Sair</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="page">
+    <div class="container">
+      <div class="page__header">
+        <h1>Meus Agendamentos</h1>
+      </div>
+
+      <!-- Filter tabs -->
+      <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+        <button class="btn btn--sm btn--primary" id="filter-all" data-status="">Todos</button>
+        <button class="btn btn--sm btn--outline" id="filter-pending" data-status="pending">Pendentes</button>
+        <button class="btn btn--sm btn--outline" id="filter-confirmed" data-status="confirmed">Confirmados</button>
+        <button class="btn btn--sm btn--outline" id="filter-cancelled" data-status="cancelled">Cancelados</button>
+      </div>
+
+      <div id="appointments-container">
+        <div class="loading-overlay">
+          <div class="spinner spinner--lg"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cancel modal -->
+  <div id="cancel-modal" class="modal-backdrop hidden">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal__header">
+        <h2>Cancelar Agendamento</h2>
+        <button id="cancel-modal-close" class="btn btn--ghost btn--sm">✕</button>
+      </div>
+      <div class="modal__body">
+        <p style="margin-bottom: 12px;">Tem certeza que deseja cancelar este agendamento?</p>
+        <div id="cancel-appointment-info"
+          style="padding: 12px; background: var(--color-bg); border-radius: var(--radius-sm); font-size: .875rem;">
+        </div>
+        <div id="cancel-error" class="alert alert--danger hidden" style="margin-top: 12px;"></div>
+      </div>
+      <div class="modal__footer">
+        <button id="cancel-keep-btn" class="btn btn--outline">Manter</button>
+        <button id="cancel-confirm-btn" class="btn btn--danger">Cancelar Agendamento</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/appointments.js"></script>
+</body>
+
+</html>

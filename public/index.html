@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Age Treino Studio Personal — Login</title>
+  <meta name="description" content="Acesse o sistema de agendamento da Age Treino Studio Personal.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+
+<body>
+  <div class="auth-page">
+    <div class="auth-box">
+      <div class="auth-logo">
+        <img src="/images/logo.jfif" alt="Age Treino Studio Personal" />
+      </div>
+
+      <!-- Tab switcher -->
+      <div class="card">
+        <div class="card__header" style="padding: 0; gap: 0;">
+          <button id="tab-login" class="btn btn--ghost w-full"
+            style="border-radius: var(--radius) 0 0 0; border-bottom: 2px solid var(--color-primary); color: var(--color-text); font-weight: 600;">Acesso Restrito</button>
+        </div>
+
+        <!-- Login Form -->
+        <div id="form-login" class="card__body">
+          <form id="login-form" class="form-stack" novalidate>
+            <div class="form-group">
+              <label class="form-label form-label--required" for="login-email">E-mail</label>
+              <input id="login-email" class="form-control" type="email" placeholder="seu@email.com" autocomplete="email"
+                required>
+            </div>
+            <div class="form-group">
+              <label class="form-label form-label--required" for="login-password">Senha</label>
+              <input id="login-password" class="form-control" type="password" placeholder="••••••••"
+                autocomplete="current-password" required>
+            </div>
+            <div id="login-error" class="alert alert--danger hidden"></div>
+            <button id="login-btn" class="btn btn--primary btn--full btn--lg" type="submit">Entrar</button>
+          </form>
+
+          <!-- Seção de Acesso Rápido para Apresentação -->
+          <div style="margin-top: 24px; padding-top: 16px; border-top: 1px dashed var(--color-border); text-align: center;">
+            <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-muted); margin-bottom: 10px;">
+              🚀 Acesso Rápido para Demonstração
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <button type="button" id="btn-quick-admin" class="btn btn--outline btn--sm" style="display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 600;">
+                👑 Admin
+              </button>
+              <button type="button" id="btn-quick-student" class="btn btn--outline btn--sm" style="display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 600;">
+                🏋️ Aluno
+              </button>
+            </div>
+            <div style="font-size: 0.725rem; color: var(--color-text-light); margin-top: 8px;">
+              Modo Mockup ativo (100% no navegador, sem banco)
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/mock-service.js"></script>
+  <script src="/js/api.js"></script>
+  <script>
+    // Redirect if already logged in
+    redirectIfLoggedIn();
+
+    // Only login tab exists now
+    const tabLogin = document.getElementById('tab-login');
+    const formLogin = document.getElementById('form-login');
+
+    function getAuthUser(data) {
+      const user = data.usuario || data.user;
+      if (!user) {
+        throw new Error('Resposta de autenticação inválida.');
+      }
+      return user;
+    }
+
+    async function executeLogin(email, password) {
+      const btn = document.getElementById('login-btn');
+      const errEl = document.getElementById('login-error');
+      errEl.classList.add('hidden');
+      setLoading(btn, true);
+      try {
+        const data = await apiFetch('/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({ email, password }),
+        });
+        const user = getAuthUser(data);
+        setToken(data.accessToken);
+        setUser(user);
+        window.location.href = user.role === 'admin' ? '/admin/' : '/schedule.html';
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.classList.remove('hidden');
+        setLoading(btn, false);
+      }
+    }
+
+    // Login Form Submit
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const pass = document.getElementById('login-password').value;
+      await executeLogin(email, pass);
+    });
+
+    // Botões de Acesso Rápido
+    document.getElementById('btn-quick-admin').addEventListener('click', async () => {
+      document.getElementById('login-email').value = 'admin@age.com';
+      document.getElementById('login-password').value = 'admin';
+      await executeLogin('admin@age.com', 'admin');
+    });
+
+    document.getElementById('btn-quick-student').addEventListener('click', async () => {
+      document.getElementById('login-email').value = 'aluno@age.com';
+      document.getElementById('login-password').value = 'aluno';
+      await executeLogin('aluno@age.com', 'aluno');
+    });
+  </script>
+</body>
+
+</html>

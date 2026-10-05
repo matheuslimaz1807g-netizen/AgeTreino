@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agendamento — Age Treino Studio Personal</title>
+  <meta name="description" content="Escolha um horário e agende seu treino na Age Treino Studio Personal.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header__inner">
+      <a href="/schedule.html" class="header__logo">
+        <img src="/images/logo.jfif" alt="Age Treino" />
+      </a>
+      <nav class="header__nav">
+        <a href="/schedule.html" class="header__nav-link active">Agendamento</a>
+        <a href="/my-appointments.html" class="header__nav-link">Meus Agendamentos</a>
+      </nav>
+      <div class="header__user">
+        <span class="header__user-name" id="user-name-display"></span>
+        <button id="logout-btn" class="btn btn--ghost btn--sm">Sair</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="page">
+    <div class="container">
+      <div class="page__header">
+        <h1>Agendamento de treino</h1>
+        <p>Escolha uma data e selecione o horário disponível.</p>
+      </div>
+
+      <!-- Date picker -->
+      <div id="date-picker-bar" class="date-picker-bar">
+        <div class="loading-overlay"><div class="spinner"></div></div>
+      </div>
+
+      <!-- Slots list -->
+      <div id="slots-container">
+        <div class="loading-overlay"><div class="spinner spinner--lg"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm modal -->
+  <div id="confirm-modal" class="modal-backdrop hidden">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal__header">
+        <h2 id="modal-title">Confirmar agendamento</h2>
+        <button id="modal-close" class="btn btn--ghost btn--sm">✕</button>
+      </div>
+      <div class="modal__body">
+        <p style="margin-bottom: 16px;">Você está agendando:</p>
+        <div class="card" style="border: none; background: var(--color-bg); border-radius: var(--radius-sm);">
+          <div class="card__body" style="padding: 14px 16px;">
+            <div style="font-weight: 600; font-size: 1rem;" id="modal-slot-time"></div>
+            <div style="color: var(--color-text-muted); font-size: .875rem; margin-top: 4px;" id="modal-slot-date"></div>
+          </div>
+        </div>
+        <div id="confirm-error" class="alert alert--danger hidden" style="margin-top: 12px;"></div>
+      </div>
+      <div class="modal__footer">
+        <button id="modal-cancel-btn" class="btn btn--outline">Cancelar</button>
+        <button id="modal-confirm-btn" class="btn btn--primary">Confirmar agendamento</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/schedule.js"></script>
+</body>
+</html>
